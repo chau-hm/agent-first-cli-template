@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+required=(
+  "README.md"
+  "scripts/create-agent-first-cli-app"
+  "templates/repo/package.json"
+  "templates/repo/README.md"
+  "templates/repo/src/cli/index.ts"
+  "templates/repo/src/cli/program.ts"
+  "templates/repo/src/domain/chat-intake.ts"
+  "templates/repo/tests/cli/program.test.ts"
+  "templates/repo/scripts/preflight.sh"
+  "templates/repo/.github/workflows/ci.yml"
+  "templates/vault/PRD.md"
+  "templates/vault/Architecture.md"
+  "templates/vault/SDD_TDD_Workflow.md"
+  "templates/vault/Decisions.md"
+  "templates/vault/TODO.md"
+  "templates/vault/Research.md"
+)
+
+for path in "${required[@]}"; do
+  if [[ ! -e "$root/$path" ]]; then
+    echo "missing template file: $path" >&2
+    exit 1
+  fi
+done
+
+node --check "$root/scripts/create-agent-first-cli-app"
+echo "template validation passed"
+

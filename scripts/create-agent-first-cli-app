@@ -1,0 +1,125 @@
+#!/usr/bin/env node
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+function usage() {
+  console.log(`Usage: scripts/create-agent-first-cli-app --name NAME --title TITLE --command COMMAND --description TEXT --repo-dir DIR [--vault-dir DIR]
+
+Options:
+  --name          npm package/repo slug, e.g. warranty-box
+  --title         Human title, e.g. Warranty Box
+  --command       Telegram/OpenClaw slash command without slash, e.g. warranty
+  --description   One-sentence product description
+  --repo-dir      Output repository directory
+  --vault-dir     Optional vault docs directory
+  --force         Allow writing into an existing empty directory
+`);
+}
+
+function parseArgs(argv) {
+  const out = { force: false };
+  for (let i = 0; i < argv.length; i += 1) {
+    const arg = argv[i];
+    if (arg === "--help" || arg === "-h") {
+      usage();
+      process.exit(0);
+    }
+    if (arg === "--force") {
+      out.force = true;
+      continue;
+    }
+    if (!arg.startsWith("--")) throw new Error(`unexpected argument: ${arg}`);
+    const key = arg.slice(2);
+    const value = argv[i + 1];
+    if (!value || value.startsWith("--")) throw new Error(`missing value for ${arg}`);
+    out[key] = value;
+    i += 1;
+  }
+  return out;
+}
+
+function ensureDirReady(dir, force) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+    return;
+  }
+  const entries = fs.readdirSync(dir).filter((name) => name !== ".DS_Store");
+  if (entries.length > 0 && !force) {
+    throw new Error(`output directory is not empty: ${dir}`);
+  }
+}
+
+function walk(dir) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+  return entries.flatMap((entry) => {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) return walk(full);
+    return [full];
+  });
+}
+
+function render(text, vars) {
+  return text.replaceAll("__APP_NAME__", vars.name)
+    .replaceAll("__APP_TITLE__", vars.title)
+    .replaceAll("__COMMAND__", vars.command)
+    .replaceAll("__DESCRIPTION__", vars.description)
+    .replaceAll("__DEFAULT_DATA_DIR__", `~/.${vars.name}`)
+    .replaceAll("__BIN_NAME__", vars.name);
+}
+
+function copyRenderedTree(srcDir, destDir, vars) {
+  for (const file of walk(srcDir)) {
+    const rel = path.relative(srcDir, file);
+    const dest = path.join(destDir, rel);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    const mode = fs.statSync(file).mode;
+    const raw = fs.readFileSync(file, "utf8");
+    fs.writeFileSync(dest, render(raw, vars));
+    fs.chmodSync(dest, mode);
+  }
+}
+
+function validateVars(vars) {
+  const required = ["name", "title", "command", "description", "repo-dir"];
+  for (const key of required) {
+    if (!vars[key]) throw new Error(`missing --${key}`);
+  }
+  if (!/^[a-z0-9][a-z0-9-]*$/u.test(vars.name)) {
+    throw new Error("--name must be a lowercase npm-style slug");
+  }
+  if (!/^[a-z][a-z0-9-]*$/u.test(vars.command)) {
+    throw new Error("--command must be a lowercase slash-command name without slash");
+  }
+}
+
+try {
+  const args = parseArgs(process.argv.slice(2));
+  validateVars(args);
+  const vars = {
+    name: args.name,
+    title: args.title,
+    command: args.command,
+    description: args.description
+  };
+
+  const repoDir = path.resolve(args["repo-dir"]);
+  ensureDirReady(repoDir, args.force);
+  copyRenderedTree(path.join(root, "templates", "repo"), repoDir, vars);
+
+  if (args["vault-dir"]) {
+    const vaultDir = path.resolve(args["vault-dir"]);
+    ensureDirReady(vaultDir, args.force);
+    copyRenderedTree(path.join(root, "templates", "vault"), vaultDir, vars);
+  }
+
+  console.log(`created repo scaffold: ${repoDir}`);
+  if (args["vault-dir"]) console.log(`created vault docs: ${path.resolve(args["vault-dir"])}`);
+  console.log("next: npm install && ./scripts/preflight.sh");
+} catch (error) {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exit(1);
+}
+
