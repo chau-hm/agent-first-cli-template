@@ -12,6 +12,10 @@ export type AppError = {
     message: string;
     candidates?: unknown[];
   };
+  scope: string[];
+  sideEffects: string[];
+  warnings: string[];
+  artifactPath?: string;
 };
 
 export function ambiguousTarget(message: string, candidates: unknown[] = []): AppError {
@@ -21,7 +25,19 @@ export function ambiguousTarget(message: string, candidates: unknown[] = []): Ap
       code: "AMBIGUOUS_TARGET",
       message,
       candidates
-    }
+    },
+    scope: [],
+    sideEffects: [],
+    warnings: []
   };
 }
 
+export function validationFailed(message: string): AppError {
+  return {
+    ok: false,
+    error: { code: "VALIDATION_FAILED", message },
+    scope: [],
+    sideEffects: [],
+    warnings: []
+  };
+}

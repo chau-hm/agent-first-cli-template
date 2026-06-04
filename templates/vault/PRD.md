@@ -23,6 +23,8 @@ The app is agent-first: Telegram/OpenClaw chat is the main user surface, and the
 
 - Stable non-interactive CLI.
 - `--format json` for agent use.
+- Machine-readable capabilities and typed JSON errors.
+- Mutation metadata, true zero-write dry-run, and optional compact run receipts.
 - Health command.
 - Chat intake commands:
   - `chat parse`
@@ -33,6 +35,7 @@ The app is agent-first: Telegram/OpenClaw chat is the main user surface, and the
 - Ambiguous mutation protection.
 - Local-first storage.
 - CI/preflight baseline.
+- Wrapper global-option preservation and deploy/ship verification.
 
 ## Non-Goals
 
@@ -47,4 +50,3 @@ The app is agent-first: Telegram/OpenClaw chat is the main user surface, and the
 - CLI commands can be called directly and from OpenClaw.
 - Chat intake behavior is tested.
 - CI runs build, typecheck, and tests.
-

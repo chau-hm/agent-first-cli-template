@@ -13,12 +13,14 @@ Chat intake is a core product surface. Major workflows should define both determ
 3. Implement: keep changes scoped to the slice.
 4. Refactor: clean only after tests pass.
 5. Document: update TODO, Decisions, and user docs.
+6. Deploy/ship closeout: verify installed skill parity and run post-deploy preflight separately from implementation proof.
 
 ## Definition Of Ready
 
 - Clear user-facing behavior.
 - Chat/OpenClaw entry behavior, or explicit deferral.
 - Data/state impact.
+- Mutation `scope`, `sideEffects`, `warnings`, dry-run plan, and derived-state impact.
 - Acceptance criteria.
 - Test cases or test outline.
 - Known assumptions and open questions.
@@ -32,10 +34,11 @@ Chat intake is a core product surface. Major workflows should define both determ
 - Ambiguous mutations do not mutate.
 - Domain correctness does not rely on LLM/OCR/live provider output.
 - Docs/TODO/Decisions are updated.
+- Repo-managed and installed skill/wrapper match when deployment is in scope.
+- Post-deploy preflight passes through the installed command path.
 
 ## Required Proof
 
 ```bash
 ./scripts/preflight.sh
 ```
-

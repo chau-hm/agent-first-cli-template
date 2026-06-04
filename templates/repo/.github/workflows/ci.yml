@@ -31,5 +31,4 @@ jobs:
         run: npm ci
 
       - name: Run local CI
-        run: npm run ci
-
+        run: ./scripts/preflight.sh

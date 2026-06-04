@@ -36,7 +36,8 @@ npm install
 
 - TypeScript/Node CLI using `commander`.
 - `src/domain`, `src/application`, `src/cli`, and `src/adapters` boundaries.
-- Stable `health`, `chat parse`, `chat confirm`, `chat items`, and `chat mutate` command skeletons.
+- Stable `health`, `capabilities`, `chat parse`, `chat confirm`, `chat items`, and `chat mutate` command skeletons.
+- Machine-readable capabilities, typed JSON errors, mutation metadata, true dry-run, and optional run receipts.
 - JSON output contract for agents and short text output for humans.
 - Draft/confirm and ambiguous mutation placeholders.
 - Tests for health, CLI JSON output, and chat intake contracts.
@@ -52,8 +53,13 @@ Every generated app starts with these assumptions:
 - CLI commands are deterministic, non-interactive backend operations.
 - Domain logic stays pure and testable.
 - Mutations must be exact, confirmed, or guarded by candidate lists.
+- Mutation responses declare `scope`, `sideEffects`, and `warnings`.
+- Dry-run performs zero writes and reports `plannedOperations` plus derived-state impact.
+- `--artifact-dir` writes compact receipts for mutation outcomes, never read-only noise.
+- Wrappers preserve global options when routing commands.
 - Core correctness must not depend on LLM, OCR, Telegram, live providers, or hidden prompts.
 - Local preflight and CI are mandatory baseline gates.
+- Deploy/ship closeout separately verifies installed skill parity and post-deploy preflight.
 - Runtime data stays local and out of git.
 
 ## When Not To Use It

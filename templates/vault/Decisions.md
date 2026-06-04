@@ -12,4 +12,6 @@ Impact:
 - Chat intake is first-class.
 - CI/preflight is mandatory.
 - Runtime data stays local and out of git.
-
+- Agent-visible capabilities and mutation contracts stay machine-readable.
+- Dry-run is zero-write; optional receipts cover mutation outcomes without read-only noise.
+- Deploy/ship closeout verifies installed skill parity and post-deploy behavior separately.

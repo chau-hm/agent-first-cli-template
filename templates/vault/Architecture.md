@@ -24,6 +24,7 @@ The app is a TypeScript/Node CLI designed for OpenClaw or Telegram-first use. Ch
 
 ```bash
 __BIN_NAME__ health --format json
+__BIN_NAME__ capabilities --format json
 __BIN_NAME__ chat parse "<natural-language add request>" --format json
 __BIN_NAME__ chat confirm --draft-json '<json>' --format json
 __BIN_NAME__ chat items "<natural-language list/search>" --format json
@@ -32,7 +33,11 @@ __BIN_NAME__ chat mutate "<natural-language edit/delete/restore>" --format json
 
 ## OpenClaw Integration
 
-The OpenClaw skill or command wrapper should translate `/__COMMAND__ ...` into CLI calls. Platform routing must not leak into domain/application logic.
+The OpenClaw skill or command wrapper should translate `/__COMMAND__ ...` into CLI calls. Platform routing must not leak into domain/application logic. Wrappers preserve global options such as `--format` and `--artifact-dir` while routing.
+
+## Mutation Contract
+
+Mutation success, dry-run, and typed errors declare `scope`, `sideEffects`, and `warnings`. Dry-run is a true zero-write preview with `plannedOperations` and `derivedStateImpact`. Optional `--artifact-dir` receipts cover mutation outcomes only.
 
 ## Error Shape
 
@@ -43,7 +48,10 @@ The OpenClaw skill or command wrapper should translate `/__COMMAND__ ...` into C
     "code": "AMBIGUOUS_TARGET",
     "message": "Multiple matching records found.",
     "candidates": []
-  }
+  },
+  "scope": [],
+  "sideEffects": [],
+  "warnings": []
 }
 ```
 
@@ -55,4 +63,3 @@ The OpenClaw skill or command wrapper should translate `/__COMMAND__ ...` into C
 - `3`: missing file or unreadable local resource.
 - `4`: provider/adapter failure.
 - `5`: unexpected internal error.
-

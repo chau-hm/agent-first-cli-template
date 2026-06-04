@@ -10,8 +10,12 @@ required=(
   "templates/repo/README.md"
   "templates/repo/src/cli/index.ts"
   "templates/repo/src/cli/program.ts"
+  "templates/repo/src/cli/artifacts.ts"
+  "templates/repo/src/cli/wrapper-routing.ts"
+  "templates/repo/src/domain/contracts.ts"
   "templates/repo/src/domain/chat-intake.ts"
   "templates/repo/tests/cli/program.test.ts"
+  "templates/repo/tests/cli/wrapper-routing.test.ts"
   "templates/repo/scripts/preflight.sh"
   "templates/repo/.github/workflows/ci.yml"
   "templates/vault/PRD.md"
@@ -30,5 +34,8 @@ for path in "${required[@]}"; do
 done
 
 node --check "$root/scripts/create-agent-first-cli-app"
+rg -q 'command\("capabilities"\)' "$root/templates/repo/src/cli/program.ts"
+rg -q -- '--artifact-dir' "$root/templates/repo/src/cli/program.ts"
+rg -q 'plannedOperations' "$root/templates/repo/tests/cli/program.test.ts"
+rg -q 'post-deploy preflight' "$root/docs/template-contract.md"
 echo "template validation passed"
-

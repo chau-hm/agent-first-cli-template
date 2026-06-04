@@ -14,6 +14,8 @@
 - [ ] Add validation rules.
 - [ ] Add domain tests.
 - [ ] Add CLI output contract tests.
+- [ ] Add machine-readable `capabilities`.
+- [ ] Add typed JSON error and mutation metadata contracts.
 
 ## Phase 2: Persistence
 
@@ -34,10 +36,19 @@
 - [ ] Add OpenClaw skill wrapper.
 - [ ] Add Telegram-friendly response examples.
 - [ ] Smoke test `/__COMMAND__ ...` routing.
+- [ ] Test wrapper preservation of global options.
 
 ## Phase 5: Hardening
 
 - [ ] Add JSON error contract tests.
+- [ ] Add zero-write dry-run, planned operations, and derived-state impact tests.
+- [ ] Add mutation receipt tests and prove read-only commands create no artifact noise.
 - [ ] Add regression tests for destructive actions.
 - [ ] Review docs against shared coding guideline.
 
+## Phase 6: Deploy And Ship
+
+- [ ] Deploy repo-managed skill/wrapper to the installed workspace location.
+- [ ] Verify installed and repo-managed sources match.
+- [ ] Run post-deploy preflight through the installed command path.
+- [ ] Run `git diff --check`, commit intended changes, push current branch, and report results.
