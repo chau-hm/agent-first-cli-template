@@ -38,7 +38,7 @@ npm install
 - `src/domain`, `src/application`, `src/cli`, and `src/adapters` boundaries.
 - Stable `health`, `capabilities`, `chat parse`, `chat confirm`, `chat items`, and `chat mutate` command skeletons.
 - Machine-readable capabilities, typed JSON errors, mutation metadata, true dry-run, and optional run receipts.
-- JSON output contract for agents and short text output for humans.
+- JSON output contract for agents, optional Telegram/OpenClaw `richMessage` payloads, and short text output for humans.
 - Draft/confirm and ambiguous mutation placeholders.
 - Tests for health, CLI JSON output, and chat intake contracts.
 - `scripts/preflight.sh`, `npm run ci`, and GitHub Actions CI.
@@ -56,6 +56,7 @@ Every generated app starts with these assumptions:
 - Mutation responses declare `scope`, `sideEffects`, and `warnings`.
 - Dry-run performs zero writes and reports `plannedOperations` plus derived-state impact.
 - `--artifact-dir` writes compact receipts for mutation outcomes, never read-only noise.
+- `--format rich-json` wraps the normal machine-readable result as `data` and adds a `richMessage` object with Telegram fallback text plus `presentation` for OpenClaw delivery adapters.
 - Wrappers preserve global options when routing commands.
 - Core correctness must not depend on LLM, OCR, Telegram, live providers, or hidden prompts.
 - Local preflight and CI are mandatory baseline gates.

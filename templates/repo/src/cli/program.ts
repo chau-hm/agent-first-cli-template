@@ -3,7 +3,7 @@ import { parseChatAdd, parseChatItems, parseChatMutation } from "../domain/chat-
 import { capabilities, type MutationResult } from "../domain/contracts.js";
 import { validationFailed, type AppError } from "../domain/errors.js";
 import { writeRunReceipt } from "./artifacts.js";
-import { formatJson, formatText, type OutputFormat } from "./render.js";
+import { formatJson, formatText, richMessage, type OutputFormat } from "./render.js";
 
 type GlobalOptions = {
   format?: OutputFormat;
@@ -11,7 +11,15 @@ type GlobalOptions = {
 };
 
 function output(value: unknown, format: OutputFormat = "text") {
-  const rendered = format === "json" ? formatJson(value) : formatText(value);
+  const rendered = format === "json"
+    ? formatJson(value)
+    : format === "rich-json"
+      ? formatJson({
+        ok: !(typeof value === "object" && value !== null && "ok" in value && (value as { ok?: unknown }).ok === false),
+        data: value,
+        richMessage: richMessage("__APP_TITLE__", formatText(value))
+      })
+      : formatText(value);
   process.stdout.write(rendered + "\n");
 }
 
@@ -22,7 +30,7 @@ export function createProgram() {
     .name("__APP_NAME__")
     .description("__DESCRIPTION__")
     .version("0.1.0")
-    .option("--format <format>", "Output format: text or json", "text")
+    .option("--format <format>", "Output format: text, json, or rich-json", "text")
     .option("--artifact-dir <dir>", "Write compact receipts for mutation outcomes");
 
   const globals = (command: Command) => command.optsWithGlobals<GlobalOptions>();
@@ -48,7 +56,14 @@ export function createProgram() {
     .description("Parse natural-language add text into a non-mutating draft")
     .argument("<text...>", "Natural-language request")
     .action((parts: string[], _options, command) => {
-      output(parseChatAdd(parts.join(" ")), globals(command).format);
+      const result = parseChatAdd(parts.join(" "));
+      output({
+        ...result,
+        richMessage: richMessage("Draft ready", formatText(result), [
+          { label: "Command", value: "chat confirm" },
+          { label: "Needs confirmation", value: String(result.needsConfirmation) }
+        ])
+      }, globals(command).format);
     });
 
   chat

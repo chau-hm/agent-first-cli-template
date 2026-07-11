@@ -30,6 +30,7 @@ describe("program", () => {
     const parsed = JSON.parse(await runCli(["capabilities", "--format", "json"]));
     expect(parsed.commands["chat confirm"]).toMatchObject({ mutation: true, dryRun: true, artifacts: true });
     expect(parsed.contracts.typedJsonErrors).toBe(true);
+    expect(parsed.contracts.richMessages).toBe(true);
   });
 
   it("prints chat parse JSON draft", async () => {
@@ -37,6 +38,47 @@ describe("program", () => {
     const parsed = JSON.parse(output);
     expect(parsed.kind).toBe("draft");
     expect(parsed.needsConfirmation).toBe(true);
+    expect(parsed.richMessage).toMatchObject({
+      schemaVersion: 1,
+      channel: "telegram",
+      title: "Draft ready",
+      presentation: {
+        title: "Draft ready",
+        tone: "info",
+        blocks: expect.arrayContaining([
+          expect.objectContaining({ type: "text" }),
+          expect.objectContaining({ type: "section" })
+        ])
+      },
+      blocks: expect.arrayContaining([
+        expect.objectContaining({ type: "section" }),
+        expect.objectContaining({ type: "fields" })
+      ])
+    });
+  });
+
+  it("prints rich-json with Telegram message metadata", async () => {
+    const output = await runCli(["chat", "parse", "add", "sample", "--format", "rich-json"]);
+    const parsed = JSON.parse(output);
+    expect(parsed).toMatchObject({
+      ok: true,
+      data: { kind: "draft" },
+      richMessage: {
+        schemaVersion: 1,
+        channel: "telegram",
+        title: "__APP_TITLE__",
+        presentation: {
+          title: "__APP_TITLE__",
+          tone: "info",
+          blocks: expect.arrayContaining([
+            expect.objectContaining({ type: "text" })
+          ])
+        },
+        blocks: expect.arrayContaining([
+          expect.objectContaining({ type: "section" })
+        ])
+      }
+    });
   });
 
   it("returns a zero-side-effect dry-run with planned operations and derived-state guidance", async () => {

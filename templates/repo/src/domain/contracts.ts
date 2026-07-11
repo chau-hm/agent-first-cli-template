@@ -30,6 +30,7 @@ export const capabilities = {
   },
   contracts: {
     typedJsonErrors: true,
+    richMessages: true,
     mutationMetadata: ["scope", "sideEffects", "warnings"],
     dryRun: ["plannedOperations", "derivedStateImpact", "zeroWrite"],
     optionalMutationArtifacts: true
